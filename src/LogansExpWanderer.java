@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -6,7 +7,7 @@ public class LogansExpWanderer {
 
     static Tile[][] testMaze = new Tile[][]{
             {Tile.WATER, Tile.WATER, Tile.WATER, Tile.WATER, Tile.WATER, Tile.WATER},
-            {Tile.WATER, Tile.STARTING_LOCATION, Tile.LAND, Tile.WATER, Tile.WATER, Tile.WATER},
+            {Tile.WATER, Tile.STARTING_LOCATION, Tile.LAND, Tile.LAND, Tile.WATER, Tile.WATER},
             {Tile.WATER, Tile.WATER, Tile.LAND, Tile.WATER, Tile.WATER, Tile.WATER},
             {Tile.WATER, Tile.WATER, Tile.LAND, Tile.WATER, Tile.WATER, Tile.WATER},
             {Tile.WATER, Tile.WATER, Tile.LAND, Tile.LAND, Tile.ENDING_LOCATION, Tile.WATER},
@@ -52,40 +53,35 @@ public class LogansExpWanderer {
     }
 
     List<int[]> visited = new ArrayList<>();
+    List<String> instructions = new ArrayList<>();
 
     public Direction move(int[] current, Direction direction) {
-        int iteration = 0;
         int[] workingWith = new int[2];
         workingWith[0] = current[0];
         workingWith[1] = current[1];
-        //check where you went from previous move;
+        if (direction == Direction.START);
+
         if (testMaze[workingWith[1]][workingWith[0]].getSymbol() == 'E') {
-            return Direction.STUCK;
-        }
-        if (direction == Direction.START) ;
-        else if (direction == Direction.NORTH) {
-            workingWith[1]--;
-        } else if (direction == Direction.EAST) {
-            workingWith[0]++;
-        } else if (direction == Direction.SOUTH) {
-            workingWith[1]++;
-        } else if (direction == Direction.WEST) {
-            workingWith[0]--;
-        } else {
-            System.out.println("You somehow got stuck");
+            System.out.println("You Made it");
             System.exit(0);
         }
         //check where to go
         visited.add(workingWith);
         if (getNorth(workingWith)) {
+            workingWith[1]--;
             move(workingWith, Direction.NORTH);
         } else if (getEast(workingWith)) {
+            workingWith[0]++;
             move(workingWith, Direction.EAST);
         } else if (getSouth(workingWith)) {
+            workingWith[1]++;
             move(workingWith, Direction.SOUTH);
         } else if (getWest(workingWith)) {
+            workingWith[0]--;
             move(workingWith, Direction.WEST);
         }
+        System.out.println("Going Back");
+        move(current, Direction.START);
         return Direction.STUCK;
     }
 
@@ -94,10 +90,10 @@ public class LogansExpWanderer {
         copy[0] = current[0];
         copy[1] = current[1];
         copy[1]--;
-        if (visited.contains(copy)) {
+        if (contains(visited, copy)) {
             return false;
         }
-        if (testMaze[copy[1]][copy[0]].isPassable()) {
+        else if (testMaze[copy[1]][copy[0]].isPassable()) {
             System.out.println("North");
             return true;
         }
@@ -109,10 +105,10 @@ public class LogansExpWanderer {
         copy[0] = current[0];
         copy[1] = current[1];
         copy[0]++;
-        if (visited.contains(copy)) {
+        if (contains(visited, copy)) {
             return false;
         }
-        if (testMaze[copy[1]][copy[0]].isPassable()) {
+        else if (testMaze[copy[1]][copy[0]].isPassable()) {
             System.out.println("East");
             return true;
         }
@@ -124,10 +120,10 @@ public class LogansExpWanderer {
         copy[0] = current[0];
         copy[1] = current[1];
         copy[1]++;
-        if (visited.contains(copy)) {
+        if (contains(visited, copy)) {
             return false;
         }
-        if (testMaze[copy[1]][copy[0]].isPassable()) {
+        else if (testMaze[copy[1]][copy[0]].isPassable()) {
             System.out.println("South");
             return true;
         }
@@ -139,26 +135,32 @@ public class LogansExpWanderer {
         copy[0] = current[0];
         copy[1] = current[1];
         copy[0]--;
-        if (visited.contains(copy)) {
+        if (contains(visited, copy)) {
             return false;
         }
-        if (testMaze[copy[1]][copy[0]].isPassable()) {
+        else if (testMaze[copy[1]][copy[0]].isPassable()) {
             System.out.println("West");
             return true;
+        }
+        return false;
+    }
+    public static boolean contains(List<int[]> visited, int[] position) {
+        for (int[] check : visited) {
+            String pos = Arrays.toString(position);
+            String che = Arrays.toString(check);
+            if (pos.equals(che)){
+                return true;
+            }
         }
         return false;
     }
 
     public static void main(String[] args) {
         LogansExpWanderer robot = new LogansExpWanderer();
+        System.out.println(testMaze[4][4].getSymbol());
         int[] current = new int[]{1, 1};
         robot.move(current, Direction.START);
     }
 
-    @Override
-    public boolean contains(ArrayList<int[]> store, int[] position){
-        for (int[] check : store){
-            
-        }
-    }
+
 }
