@@ -5,13 +5,11 @@ import java.util.List;
 
 public class LogansExpWanderer {
 
-    static Tile[][] testMaze = new Tile[][]{
-            {Tile.WATER, Tile.WATER, Tile.WATER, Tile.WATER, Tile.WATER, Tile.WATER},
-            {Tile.WATER, Tile.STARTING_LOCATION, Tile.LAND, Tile.LAND, Tile.WATER, Tile.WATER},
-            {Tile.WATER, Tile.WATER, Tile.LAND, Tile.WATER, Tile.WATER, Tile.WATER},
-            {Tile.WATER, Tile.WATER, Tile.LAND, Tile.WATER, Tile.WATER, Tile.WATER},
-            {Tile.WATER, Tile.WATER, Tile.LAND, Tile.LAND, Tile.ENDING_LOCATION, Tile.WATER},
-            {Tile.WATER, Tile.WATER, Tile.WATER, Tile.WATER, Tile.WATER, Tile.WATER}};
+    private final Tile[][] testMaze;
+
+    public LogansExpWanderer(Tile[][] testMaze){
+    this.testMaze = testMaze;
+    }
 
     public enum Tile {
         WATER('W', false),
@@ -56,110 +54,159 @@ public class LogansExpWanderer {
     List<String> instructions = new ArrayList<>();
 
     public Direction move(int[] current, Direction direction) {
-        int[] workingWith = new int[2];
-        workingWith[0] = current[0];
-        workingWith[1] = current[1];
-        if (direction == Direction.START);
-
-        if (testMaze[workingWith[1]][workingWith[0]].getSymbol() == 'E') {
-            System.out.println("You Made it");
+        int[] x = new int[]{current[0], current[1]};
+        if (testMaze[current[1]][current[0]].getSymbol() == 'E') {
+            instructions.add("You Made it");
+            print(instructions);
             System.exit(0);
         }
-        //check where to go
-        visited.add(workingWith);
-        if (getNorth(workingWith)) {
-            workingWith[1]--;
-            move(workingWith, Direction.NORTH);
-        } else if (getEast(workingWith)) {
-            workingWith[0]++;
-            move(workingWith, Direction.EAST);
-        } else if (getSouth(workingWith)) {
-            workingWith[1]++;
-            move(workingWith, Direction.SOUTH);
-        } else if (getWest(workingWith)) {
-            workingWith[0]--;
-            move(workingWith, Direction.WEST);
+
+        visited.add(x);
+        if (getNorth(current)) {
+            move(current, Direction.NORTH);
+        } else if (getEast(current)) {
+            move(current, Direction.EAST);//[2,1], East//[3,1], East
+        } else if (getSouth(current)) {
+            move(current, Direction.SOUTH);
+        } else if (getWest(current)) {
+            move(current, Direction.WEST);
         }
-        System.out.println("Going Back");
-        move(current, Direction.START);
+        if (direction == Direction.NORTH) {
+            current[1]++;
+            instructions.remove(instructions.size() - 1);
+            move(current, Direction.START);
+        } else if (direction == Direction.EAST) {
+            current[0]--;
+            instructions.remove(instructions.size() - 1);
+            move(current, Direction.START);
+        } else if (direction == Direction.SOUTH) {
+            current[1]--;
+            instructions.remove(instructions.size() - 1);
+            move(current, Direction.START);
+        } else if (direction == Direction.WEST) {
+            current[0]++;
+            instructions.remove(instructions.size() - 1);
+            move(current, Direction.START);
+        } else {
+            return Direction.STUCK;
+        }
         return Direction.STUCK;
     }
 
     public boolean getNorth(int[] current) {
-        int[] copy = new int[2];
-        copy[0] = current[0];
-        copy[1] = current[1];
-        copy[1]--;
-        if (contains(visited, copy)) {
+        current[1]--;
+        if (contains(visited, current)) {
+            current[1]++;
             return false;
-        }
-        else if (testMaze[copy[1]][copy[0]].isPassable()) {
-            System.out.println("North");
+        } else if (testMaze[current[1]][current[0]].isPassable()) {
+            instructions.add("North");
             return true;
         }
+        current[1]++;
         return false;
     }
 
     public boolean getEast(int[] current) {
-        int[] copy = new int[2];
-        copy[0] = current[0];
-        copy[1] = current[1];
-        copy[0]++;
-        if (contains(visited, copy)) {
+        current[0]++;
+        if (contains(visited, current)) {
+            current[0]--;
             return false;
-        }
-        else if (testMaze[copy[1]][copy[0]].isPassable()) {
-            System.out.println("East");
+        } else if (testMaze[current[1]][current[0]].isPassable()) {
+            instructions.add("East");
             return true;
         }
+        current[0]--;
         return false;
     }
 
     public boolean getSouth(int[] current) {
-        int[] copy = new int[2];
-        copy[0] = current[0];
-        copy[1] = current[1];
-        copy[1]++;
-        if (contains(visited, copy)) {
+        current[1]++;
+        if (contains(visited, current)) {
+            current[1]--;
             return false;
-        }
-        else if (testMaze[copy[1]][copy[0]].isPassable()) {
-            System.out.println("South");
+        } else if (testMaze[current[1]][current[0]].isPassable()) {
+            instructions.add("South");
             return true;
         }
+        current[1]--;
         return false;
     }
 
     public boolean getWest(int[] current) {
-        int[] copy = new int[2];
-        copy[0] = current[0];
-        copy[1] = current[1];
-        copy[0]--;
-        if (contains(visited, copy)) {
+        current[0]--;
+        if (contains(visited, current)) {
+            current[0]++;
             return false;
-        }
-        else if (testMaze[copy[1]][copy[0]].isPassable()) {
-            System.out.println("West");
+        } else if (testMaze[current[1]][current[0]].isPassable()) {
+            instructions.add("West");
             return true;
         }
+        current[0]++;
         return false;
     }
+
+    public static Tile[][] makeMaze(char[][] input) {
+        Tile[][] aMaze = new Tile[input.length][input.length];
+        for (int i = 0; i < input.length; i++) {
+            for (int j = 0; j > input.length; j++) {
+                if (input[i][j] == 'W') {
+                    aMaze[i][j] = Tile.WATER;
+                } else if (input[i][j] == '=') {
+                    aMaze[i][j] = Tile.LAND;
+                } else if (input[i][j] == 'S') {
+                    aMaze[i][j] = Tile.STARTING_LOCATION;
+                } else {
+                    aMaze[i][j] = Tile.ENDING_LOCATION;
+                }
+            }
+        }
+    return aMaze;
+    }
+
     public static boolean contains(List<int[]> visited, int[] position) {
         for (int[] check : visited) {
             String pos = Arrays.toString(position);
             String che = Arrays.toString(check);
-            if (pos.equals(che)){
+            if (pos.equals(che)) {
                 return true;
             }
         }
         return false;
     }
 
+    public static void print(List<String> toPrint){
+        for (String movement : toPrint){
+            System.out.print(movement + ", ");
+        }
+    }
+
     public static void main(String[] args) {
-        LogansExpWanderer robot = new LogansExpWanderer();
-        System.out.println(testMaze[4][4].getSymbol());
-        int[] current = new int[]{1, 1};
+        Tile[][] maze = new Tile[][]{
+                {Tile.WATER, Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER},
+                {Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.WATER},
+                {Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.WATER},
+                {Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.WATER},
+                {Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.WATER},
+                {Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.WATER},
+                {Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.WATER},
+                {Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.WATER},
+                {Tile.WATER, Tile.WATER, Tile.LAND, Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER, Tile.LAND, Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER, Tile.LAND, Tile.WATER},
+                {Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.WATER, Tile.WATER, Tile.WATER, Tile.WATER, Tile.STARTING_LOCATION, Tile.WATER, Tile.WATER, Tile.WATER, Tile.WATER, Tile.WATER, Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER},
+                {Tile.WATER, Tile.WATER, Tile.LAND, Tile.WATER,Tile.WATER,Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER, Tile.LAND, Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER,},
+                {Tile.WATER, Tile.WATER, Tile.LAND, Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER, Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER, Tile.WATER, Tile.LAND, Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER,Tile.WATER, Tile.WATER,},
+                {Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.WATER},
+                {Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.WATER},
+                {Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.ENDING_LOCATION, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.WATER},
+                {Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.WATER},
+                {Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.ENDING_LOCATION, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.WATER},
+                {Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.ENDING_LOCATION, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.WATER},
+                {Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.ENDING_LOCATION, Tile.LAND, Tile.LAND, Tile.LAND, Tile.LAND, Tile.WATER,Tile.LAND, Tile.LAND, Tile.LAND,Tile.LAND, Tile.LAND, Tile.LAND,Tile.WATER},
+                {Tile.WATER, Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER,Tile.WATER}
+        };
+        LogansExpWanderer robot = new LogansExpWanderer(maze);
+        int[] current = new int[]{11, 9};
         robot.move(current, Direction.START);
+        print(robot.instructions);
     }
 
 
