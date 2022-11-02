@@ -55,7 +55,7 @@ public class Maze2 {
         }
     }
 
-    public class Robot implements MazeWanderer {
+    public static class Robot implements MazeWanderer {
         Sensor sensor = new Sensor() {
             @Override
             public Tile getNorth() {
