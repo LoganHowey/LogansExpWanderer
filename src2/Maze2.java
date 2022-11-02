@@ -56,84 +56,15 @@ public class Maze2 {
     }
 
     public static class Robot implements MazeWanderer {
-        Sensor sensor = new Sensor() {
-            @Override
-            public Tile getNorth() {
-                return null;
-            }
 
-            @Override
-            public Tile getEast() {
-                return null;
-            }
+        Tile[][] maze = new Tile[100][100];
 
-            @Override
-            public Tile getSouth() {
-                return null;
-            }
-
-            @Override
-            public Tile getWest() {
-                return null;
-            }
-        };
-
-        public boolean mazeSolver(Tile[][] maze, int rowStart, int colStart){
-            int row = maze.length;
-            int col = maze[0].length;
-            int [][] path = new int [row][col];
-
-            if (!solveMaze(maze, rowStart, colStart, path)){
-                return false;
-            }
-            for(int i = 0; i < rowStart; i++){
-                for (int j = 0; j < colStart; j++)
-                    System.out.print(" " + path[i][j] + ' ');
-                System.out.println();
-            }
-            return true;
+        public boolean solve(Direction direction){
+            if (move()
         }
-        public boolean solveMaze(Tile[][] maze, int x, int y, int[][] visited) {
-            if (maze[x][y].getSymbol() == 'E') {
-                return true;
-            }
-
-            if (move(sensor) == Direction.NORTH && visited[x][y] != 1) {
-                visited[y][x] = 1;
-                if (solveMaze(maze, x, --y, visited)){
-                    return true;
-                }
-                visited[x][y] = 0;
-                return false;
-            } else if (move(sensor) == Direction.EAST && visited[x][y] != 1) {
-                visited[x][y] = 1;
-                if (solveMaze(maze, ++x, y, visited)){
-                    return true;
-                }
-                visited[x][y] = 0;
-                return false;
-            } else if (move(sensor) == Direction.SOUTH && visited[x][y] != 1) {
-                visited[x][y] = 1;
-                if(solveMaze(maze, x, ++y, visited)){
-                    return true;
-                }
-                visited[x][y] = 0;
-                return false;
-            } else if (move(sensor) == Direction.EAST && visited[x][y] != 1) {
-                visited[x][y] = 1;
-                if(solveMaze(maze, --x, y, visited)){
-                    return true;
-                }
-                visited[x][y] = 0;
-                return false;
-            }
-            return false;
-        }
-
         @Override
         public Direction move(Sensor sensor) {
             if (sensor.getNorth().isPassable()) {
-                return Direction.NORTH;
             } else if (sensor.getEast().isPassable()) {
                 return Direction.EAST;
             } else if (sensor.getSouth().isPassable()) {
@@ -145,9 +76,12 @@ public class Maze2 {
         }
     }
 
-    public void main(String[] args) {
-        Robot robot = new Robot();
-        Tile[][] maze = {{}};
-        robot.mazeSolver(maze, 0, 0);
+    public static void main(String[] args) {
+        System.out.println(Tile.bySymbol('E'));
     }
 }
+
+/*
+picks unused direction
+if all tiles N,S,E,W are visited begin backtracking until an unvisited tile exists.
+ */
