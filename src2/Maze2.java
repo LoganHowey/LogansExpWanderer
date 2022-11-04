@@ -2,6 +2,7 @@ import javax.swing.plaf.PanelUI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Stack;
 
 public class Maze2 {
     public enum Direction {
@@ -57,22 +58,54 @@ public class Maze2 {
 
     public static class Robot implements MazeWanderer {
 
-        Tile[][] maze = new Tile[100][100];
+        Stack<Direction> order = new Stack<>();
+        ArrayList<Tile> visited = new ArrayList<>();
 
-        public boolean solve(Direction direction){
-            if (move()
-        }
         @Override
         public Direction move(Sensor sensor) {
-            if (sensor.getNorth().isPassable()) {
-            } else if (sensor.getEast().isPassable()) {
-                return Direction.EAST;
-            } else if (sensor.getSouth().isPassable()) {
+
+            Tile north = sensor.getNorth();
+            Tile south = sensor.getSouth();
+            Tile east = sensor.getEast();
+            Tile west = sensor.getWest();
+
+            if (north.getSymbol() == 'E') {
+                return Direction.NORTH;
+            } else if (south.getSymbol() == 'E') {
                 return Direction.SOUTH;
-            } else if (sensor.getWest().isPassable()) {
+            } else if (east.getSymbol() == 'E') {
+                return Direction.EAST;
+            } else if (west.getSymbol() == 'E') {
+                return Direction.WEST;
+            } else if (north.isPassable() && !visited.contains(north)) {
+                visited.add(north);
+                order.add(Direction.NORTH);
+                return Direction.NORTH;
+            } else if (south.isPassable() && !visited.contains(south)) {
+                visited.add(south);
+                order.add(Direction.SOUTH);
+                return Direction.SOUTH;
+            } else if (east.isPassable() && !visited.contains(east)) {
+                visited.add(east);
+                order.add(Direction.EAST);
+                return Direction.EAST;
+            } else if (west.isPassable() && !visited.contains(west)) {
+                visited.add(west);
+                order.add(Direction.WEST);
                 return Direction.WEST;
             }
-            return null;
+            Direction previous = order.pop();
+            Direction backtrack = null;
+            if (previous == Direction.NORTH){
+                backtrack = Direction.SOUTH;
+            }else if (previous == Direction.SOUTH){
+                backtrack = Direction.NORTH;
+            }else if (previous == Direction.EAST){
+                backtrack = Direction.WEST;
+            }else if (previous == Direction.WEST){
+                backtrack = Direction.EAST;
+            }
+            return backtrack;
         }
     }
 
