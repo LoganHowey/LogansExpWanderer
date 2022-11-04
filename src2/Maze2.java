@@ -59,7 +59,9 @@ public class Maze2 {
     public static class Robot implements MazeWanderer {
 
         Stack<Direction> order = new Stack<>();
-        ArrayList<Tile> visited = new ArrayList<>();
+        Tile[][] visited = new Tile[500][500];
+        int x = 250;
+        int y = 250;
 
         @Override
         public Direction move(Sensor sensor) {
@@ -77,40 +79,47 @@ public class Maze2 {
                 return Direction.EAST;
             } else if (west.getSymbol() == 'E') {
                 return Direction.WEST;
-            } else if (north.isPassable() && !visited.contains(north)) {
-                visited.add(north);
+            } else if (north.isPassable() && visited[y - 1][x] == null) {
+                y--;
+                visited[y][x] = north;
                 order.add(Direction.NORTH);
                 return Direction.NORTH;
-            } else if (south.isPassable() && !visited.contains(south)) {
-                visited.add(south);
+            } else if (south.isPassable() && visited[y + 1][x] == null) {
+                y++;
+                visited[y][x] = south;
                 order.add(Direction.SOUTH);
                 return Direction.SOUTH;
-            } else if (east.isPassable() && !visited.contains(east)) {
-                visited.add(east);
+            } else if (east.isPassable() && visited[y][x + 1] == null) {
+                x++;
+                visited[y][x] = east;
                 order.add(Direction.EAST);
                 return Direction.EAST;
-            } else if (west.isPassable() && !visited.contains(west)) {
-                visited.add(west);
+            } else if (west.isPassable() && visited[y][x - 1] == null) {
+                x--;
+                visited[y][x] = west;
                 order.add(Direction.WEST);
                 return Direction.WEST;
             }
             Direction previous = order.pop();
             Direction backtrack = null;
             if (previous == Direction.NORTH){
+                y++;
                 backtrack = Direction.SOUTH;
             }else if (previous == Direction.SOUTH){
+                y--;
                 backtrack = Direction.NORTH;
             }else if (previous == Direction.EAST){
+                x--;
                 backtrack = Direction.WEST;
             }else if (previous == Direction.WEST){
+                x++;
                 backtrack = Direction.EAST;
             }
             return backtrack;
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println(Tile.bySymbol('E'));
+    public static void main(String[] args){
     }
 }
 
